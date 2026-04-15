@@ -1,6 +1,8 @@
 "use server";
 
+import { createLoginSession, verifyPassword } from "@/lib/login/manage-login";
 import { simulateDelay } from "@/utils/async-delay";
+import { redirect } from "next/navigation";
 
 type loginActionState = {
   userName: string;
@@ -17,14 +19,22 @@ export async function loginAction(state: loginActionState, formData: FormData) {
     };
   }
 
-  const userName = formData.get("userName")?.toString() || "";
-  const password = formData.get("password")?.toString() || "";
+  const userName = formData.get("userName")?.toString().trim() || "";
+  const password = formData.get("password")?.toString().trim() || "";
 
   const isUserNameValid = userName === process.env.LOGIN_USER;
-  const isPasswordValid = "";
+  const isPasswordValid = await verifyPassword(
+    password,
+    process.env.LOGIN_PASS || "",
+  );
 
-  return {
-    userName: "",
-    error: "Teste error",
-  };
+  if (!isUserNameValid || !isPasswordValid) {
+    return {
+      userName,
+      error: "Senha ou usuário inválidos",
+    };
+  }
+
+  await createLoginSession(userName);
+  redirect("/admin/post");
 }

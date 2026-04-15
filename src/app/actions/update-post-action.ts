@@ -5,6 +5,7 @@ import {
   PublicPost,
   makePublicPostFromDb,
 } from "@/dto/post/dto";
+import { verifyLoginSession } from "@/lib/login/manage-login";
 import { PostUpdateSchema } from "@/lib/post/queries/validations";
 import { postRepository } from "@/repositories/post";
 import { coverImgFormatter } from "@/utils/coverImg-formatter";
@@ -22,6 +23,8 @@ export async function updatePostAction(
   prevState: UpdatePostActionState,
   formData: FormData,
 ): Promise<UpdatePostActionState> {
+  const isAuthenticated = verifyLoginSession()
+  
   if (!(formData instanceof FormData)) {
     return {
       formState: prevState.formState,
@@ -38,14 +41,21 @@ export async function updatePostAction(
     };
   }
 
-  const formDataObj = Object.fromEntries(formData.entries());
+  const formDataToObj = Object.fromEntries(formData.entries());
 
-  const zodParsedObject = PostUpdateSchema.safeParse(formDataObj);
+  const zodParsedObject = PostUpdateSchema.safeParse(formDataToObj);
+
+  if(!isAuthenticated){
+    return{
+      formState: makePartialPublicPost(formDataToObj),
+      errors: ['Faça login em outra aba antes de salvar.']
+    }
+  }
 
   if (!zodParsedObject.success) {
     const errors = getZodErrorMessages(zodParsedObject.error);
     return {
-      formState: makePartialPublicPost(formDataObj),
+      formState: makePartialPublicPost(formDataToObj),
       errors,
     };
   }
@@ -65,13 +75,13 @@ export async function updatePostAction(
   } catch (error: unknown) {
     if (error instanceof Error) {
       return {
-        formState: makePartialPublicPost(formDataObj),
+        formState: makePartialPublicPost(formDataToObj),
         errors: [error.message],
       };
     }
 
     return {
-      formState: makePartialPublicPost(formDataObj),
+      formState: makePartialPublicPost(formDataToObj),
       errors: ["Erro desconhecido"],
     };
   }

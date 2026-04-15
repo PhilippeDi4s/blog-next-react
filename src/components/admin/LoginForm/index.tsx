@@ -32,7 +32,7 @@ export function LoginForm() {
       <form action={action} className="flex-1 flex flex-col gap-6">
         <InputText
           type="text"
-          name="username"
+          name="userName"
           labelText="Usuário"
           placeholder="Seu usuário"
           disabled={isPending}

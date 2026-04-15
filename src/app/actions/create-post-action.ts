@@ -1,6 +1,7 @@
 "use server";
 
 import { makePartialPublicPost, PublicPost } from "@/dto/post/dto";
+import { verifyLoginSession } from "@/lib/login/manage-login";
 import { PostCreateSchema } from "@/lib/post/queries/validations";
 import { PostModel } from "@/models/post/post-models";
 import { postRepository } from "@/repositories/post";
@@ -21,6 +22,8 @@ export async function createPostAction(
   prevState: CreatePostActionState,
   formData: FormData,
 ): Promise<CreatePostActionState> {
+  const isAuthenticated = await verifyLoginSession();
+
   if (!(formData instanceof FormData)) {
     return {
       formState: prevState.formState,
@@ -28,14 +31,21 @@ export async function createPostAction(
     };
   }
 
-  const formDataObj = Object.fromEntries(formData.entries());
-  
-  const zodParsedObject = PostCreateSchema.safeParse(formDataObj);
+  const formDataToObj = Object.fromEntries(formData.entries());
+
+  const zodParsedObject = PostCreateSchema.safeParse(formDataToObj);
+
+  if (!isAuthenticated) {
+    return {
+      formState: makePartialPublicPost(formDataToObj),
+      errors: ["Faça login em outra aba antes de salvar."],
+    };
+  }
 
   if (!zodParsedObject.success) {
     const errors = getZodErrorMessages(zodParsedObject.error);
     return {
-      formState: makePartialPublicPost(formDataObj),
+      formState: makePartialPublicPost(formDataToObj),
       errors,
     };
   }
@@ -48,9 +58,8 @@ export async function createPostAction(
     slug: generateSlubByText(validPostData.title),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    coverImageUrl: coverImgFormatter(validPostData.coverImageUrl)
+    coverImageUrl: coverImgFormatter(validPostData.coverImageUrl),
   };
-
 
   try {
     await postRepository.insertPost(newPost);

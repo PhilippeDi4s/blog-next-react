@@ -10,6 +10,14 @@ type loginActionState = {
 };
 
 export async function loginAction(state: loginActionState, formData: FormData) {
+  const allowLogin = Boolean(Number(process.env.ALLOW_LOGIN || 1));
+
+  if (!allowLogin) {
+    return {
+      userName: "",
+      error: "Login not allowed",
+    };
+  }
   await simulateDelay(5000);
 
   if (!(formData instanceof FormData)) {

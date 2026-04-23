@@ -8,7 +8,6 @@ import {
 import { verifyLoginSession } from "@/lib/login/manage-login";
 import { PostUpdateSchema } from "@/lib/post/queries/validations";
 import { postRepository } from "@/repositories/post";
-import { generateSlubByText } from "@/utils/generate-slug-by-text";
 import { getZodErrorMessages } from "@/utils/get-zod-error-message";
 import { revalidateTag } from "next/cache";
 
@@ -62,7 +61,6 @@ export async function updatePostAction(
   const validPostData = zodParsedObject.data;
 
   const newPost = {
-    slug: generateSlubByText(validPostData.title),
     ...validPostData,
   };
 

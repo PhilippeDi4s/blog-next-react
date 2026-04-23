@@ -3,6 +3,7 @@ import { drizzleDb } from "@/db/drizzle";
 import { PostRepository } from "./post-repository";
 import { postsTable } from "@/db/drizzle/schemas";
 import { eq } from "drizzle-orm";
+import { PostUpdateInput } from "@/lib/post/queries/validations";
 
 export class DrizzlePostRepository implements PostRepository {
   async findAllPublic(): Promise<PostModel[]> {
@@ -76,7 +77,7 @@ export class DrizzlePostRepository implements PostRepository {
     return post;
   }
 
-  async updatePostById(id: string, newPostData: Omit<PostModel, 'id' | 'createdAt' | 'updatedAt'>): Promise<PostModel> {
+  async updatePostById(id: string, newPostData: PostUpdateInput): Promise<PostModel> {
     const oldPost = await drizzleDb.query.posts.findFirst({
       where: (posts, {eq}) => eq(posts.id, id)
     })
@@ -87,9 +88,8 @@ export class DrizzlePostRepository implements PostRepository {
 
     const updatedAt = new Date().toISOString();
 
-    const updatedPostData: Omit<PostModel, "id" | "createdAt"> = {
+    const updatedPostData: Omit<PostModel, "id" | "createdAt" | "slug"> = {
       author: newPostData.author,
-      slug: newPostData.slug,
       title: newPostData.title,
       content: newPostData.content,              
       coverImageUrl: newPostData.coverImageUrl,

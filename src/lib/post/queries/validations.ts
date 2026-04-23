@@ -40,10 +40,9 @@ const PostBaseSchema = z.object({
     .transform((val) => val === "on" || val === "true" || val === true),
 });
 
-// PostCreateSchema: igual ao base por enquanto
 export const PostCreateSchema = PostBaseSchema;
 
-// PostUpdateSchema: pode incluir campos extras no futuro (ex: id)
-export const PostUpdateSchema = PostBaseSchema.extend({
-  // id: z.string().uuid('ID inválido'),
-});
+export const PostUpdateSchema = PostBaseSchema;
+
+export type PostUpdateInput = z.infer<typeof PostUpdateSchema>;
+

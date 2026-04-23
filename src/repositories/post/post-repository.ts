@@ -1,3 +1,4 @@
+import { PostUpdateInput } from "@/lib/post/queries/validations";
 import { PostModel } from "@/models/post/post-models";
 
 export interface PostRepository {
@@ -11,6 +12,6 @@ export interface PostRepository {
   deletePostById(id: string): Promise<PostModel>;
   updatePostById(
     id: string,
-    newPostData:  Omit<PostModel, 'id' | 'createdAt' | 'updatedAt'>,
+    newPostData:  PostUpdateInput,
   ): Promise<PostModel>;
 }

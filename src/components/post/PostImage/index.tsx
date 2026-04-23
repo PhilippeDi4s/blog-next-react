@@ -12,12 +12,10 @@ export function PostImage({
 }: PostImageProps) {
   return (
     <div
-      className={clsx(
-        "w-full",
-        `${imageHeight === "full" ? "h-full" : `h-[${imageHeight}rem]`}`,
-        "overflow-hidden",
-        "rounded-2xl",
-      )}
+      className={clsx("w-full", "overflow-hidden", "rounded-2xl")}
+      style={{
+        height: imageHeight === "full" ? "100%" : `${imageHeight}rem`,
+      }}
     >
       <Image
         {...imageProps}

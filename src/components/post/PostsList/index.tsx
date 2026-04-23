@@ -29,7 +29,7 @@ export async function PostsList() {
                   src: post.coverImageUrl,
                   alt: `Imagem do Post ${post.title}`,
                 }}
-                imageHeight={14.5}
+                imageHeight={12.5}
               />
 
               <PostSummary

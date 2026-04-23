@@ -1,13 +1,12 @@
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import "dotenv/config";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+
 import { postsTable } from "./schemas";
-import Database from "better-sqlite3";
-import { resolve } from "path";
 
-const sqliteDataBasePath = resolve(process.cwd(), "db.sqlite3");
+const sql = neon(process.env.DATABASE_URL!);
 
-const sqliteDataBase = new Database(sqliteDataBasePath);
-
-export const drizzleDb = drizzle(sqliteDataBase, {
+export const drizzleDb = drizzle(sql, {
   schema: {
     posts: postsTable,
   },

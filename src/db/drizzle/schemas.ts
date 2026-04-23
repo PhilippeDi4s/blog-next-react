@@ -1,17 +1,17 @@
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { integer, text, sqliteTable } from "drizzle-orm/sqlite-core";
+import { pgTable, boolean, varchar } from "drizzle-orm/pg-core"
 
-export const postsTable = sqliteTable("posts", {
-  id: text("id").primaryKey(),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
-  excerpt: text("excerpt").notNull(),
-  content: text("content").notNull(),
-  coverImageUrl: text("cover_image_url").notNull(),
-  published: integer("published", { mode: "boolean" }).notNull(),
-  createdAt: text("created_at").notNull(),
-  updatedAt: text("updated_at").notNull(),
-  author: text("author").notNull(),
+export const postsTable = pgTable("posts", {
+  id: varchar("id").primaryKey(),
+  title: varchar("title").notNull(),
+  slug: varchar("slug").notNull().unique(),
+  excerpt: varchar("excerpt").notNull(),
+  content: varchar("content").notNull(),
+  coverImageUrl: varchar("cover_image_url").notNull(),
+  published: boolean("published").notNull(),
+  createdAt: varchar("created_at").notNull(),
+  updatedAt: varchar("updated_at").notNull(),
+  author: varchar("author").notNull(),
 });
 
 export type PostsTableSelectedMode = InferSelectModel<typeof postsTable>;

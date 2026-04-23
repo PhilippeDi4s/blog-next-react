@@ -5,7 +5,6 @@ import { verifyLoginSession } from "@/lib/login/manage-login";
 import { PostCreateSchema } from "@/lib/post/queries/validations";
 import { PostModel } from "@/models/post/post-models";
 import { postRepository } from "@/repositories/post";
-import { coverImgFormatter } from "@/utils/coverImg-formatter";
 import { generateSlubByText } from "@/utils/generate-slug-by-text";
 import { getZodErrorMessages } from "@/utils/get-zod-error-message";
 import { revalidateTag } from "next/cache";
@@ -58,7 +57,6 @@ export async function createPostAction(
     slug: generateSlubByText(validPostData.title),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    coverImageUrl: coverImgFormatter(validPostData.coverImageUrl),
   };
 
   try {

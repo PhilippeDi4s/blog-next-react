@@ -1,8 +1,10 @@
 "use server";
+import cloudinary from "@/lib/cloudinary";
 import { fileTypeFromBuffer } from "file-type";
-import { mkdir, writeFile } from "fs/promises";
-import { extname, resolve } from "path";
 import sharp from "sharp";
+// import { mkdir, writeFile } from "fs/promises";
+// import { extname, resolve } from "path";
+// import sharp from "sharp";
 
 type UploadImageActionResult = {
   url: string;
@@ -12,9 +14,8 @@ type UploadImageActionResult = {
 export async function uploadImageAction(
   formData: FormData,
 ): Promise<UploadImageActionResult> {
-  
   const makeResult = ({ url = "", error = "" }) => ({ url, error });
-  
+
   if (!(formData instanceof FormData)) {
     return makeResult({ error: "Dados inválidos" });
   }
@@ -39,29 +40,32 @@ export async function uploadImageAction(
     return makeResult({ error: "Formato não permitido" });
   }
 
-  const imageMaxUploadSize = Number(process.env.NEXT_PUBLIC_IMAGE_UPLOAD_MAX_SIZE || 921600)
+  const imageMaxUploadSize = Number(
+    process.env.NEXT_PUBLIC_IMAGE_UPLOAD_MAX_SIZE || 921600,
+  );
 
   if (file.size > imageMaxUploadSize) {
     return makeResult({ error: "Arquivo muito grande" });
   }
+
   const safeBuffer = await sharp(buffer).resize(800).toFormat("png").toBuffer();
 
-  const imageExtension = extname(file.name);
-  const uniqueImageName = `${Date.now()}${imageExtension}`;
-
-  const imageUploaderDirectory = process.env.NEXT_PUBLIC_IMAGE_UPLOAD_DIRECTORY || "uploads"
-
-  const uploadFullPath = resolve(process.cwd(), "public", imageUploaderDirectory)
-
-  await mkdir(uploadFullPath, { recursive: true });
-
-  const fileFullPath = resolve(uploadFullPath, uniqueImageName);
-
-  await writeFile(fileFullPath, safeBuffer);
-
-  const imageServerUrl = process.env.NEXT_PUBLIC_IMAGE_SERVER_URL || 'http://localhost:3000/uploads'
-
-  const url = `${imageServerUrl}/${uniqueImageName}`;
-
-  return makeResult({ url });
+  return new Promise((resolve) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "uploads" },
+      (error, result) => {
+        if (error || !result) {
+          resolve(
+            makeResult({
+              error: "Não foi possível enviar a imagem ao servidor",
+            }),
+          );
+          console.log(error)
+          return;
+        }
+        resolve(makeResult({ error: "", url: result.secure_url }));
+      },
+    );
+    stream.end(safeBuffer);
+  });
 }

@@ -71,6 +71,12 @@ export function ManagePostForm(props: ManagePostFormProps) {
     }
   }, [created, router]);
 
+  useEffect(()=>{
+    if(state.success){
+      showMessage.succsses('Post atualizado com sucesso!')
+    }
+  }, [state.success])
+
   const { formState } = state;
   const [contentValue, setContentValue] = useState(publicPost?.content || "");
 

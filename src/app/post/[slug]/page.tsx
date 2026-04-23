@@ -13,7 +13,7 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const { slug } = params;
+  const { slug } = await params;
 
   const post = await findPublicPostBySlugCached(slug);
 
